@@ -8,6 +8,7 @@ export default function SudokuCell({
   peerHighlighted,
   sameNumberHighlighted,
   selectedNumber,
+  completionPulse,
   onSelect,
 }) {
   const classNames = ["sudoku-cell"];
@@ -20,6 +21,7 @@ export default function SudokuCell({
   if (row === 2 || row === 5) classNames.push("box-bottom");
 
   if (cell.error) classNames.push("has-error");
+  if (completionPulse) classNames.push("is-completion-pulse");
 
   const valueClass = cell.given
     ? "cell-value given"

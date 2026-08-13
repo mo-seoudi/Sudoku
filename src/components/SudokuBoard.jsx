@@ -6,12 +6,14 @@ export default function SudokuBoard({
   selectedCell,
   onSelectCell,
   paused,
+  completionPulseCells = [],
 }) {
   const selected = selectedCell
     ? board[selectedCell.row][selectedCell.col]
     : null;
 
   const selectedNumber = selected?.value || null;
+  const pulseCells = new Set(completionPulseCells);
 
   return (
     <div className="board-shell">
@@ -45,6 +47,7 @@ export default function SudokuBoard({
                 peerHighlighted={peerHighlighted}
                 sameNumberHighlighted={sameNumberHighlighted}
                 selectedNumber={selectedNumber}
+                completionPulse={pulseCells.has(`${rowIndex}-${colIndex}`)}
                 onSelect={onSelectCell}
               />
             );
@@ -55,7 +58,7 @@ export default function SudokuBoard({
       {paused && (
         <div className="pause-overlay">
           <div className="pause-card">
-            <span className="pause-icon">Ⅱ</span>
+            <span className="pause-symbol pause-symbol-large" aria-hidden="true"><span /><span /></span>
             <strong>Game paused</strong>
             <span>Your board is hidden while the timer is stopped.</span>
           </div>
