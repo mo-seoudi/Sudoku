@@ -90,7 +90,7 @@ export default function App() {
       setCompletionPulseCells((current) =>
         current.some((cell) => cells.includes(cell)) ? [] : current
       );
-    }, 900);
+    }, 1400);
   }, [solution]);
 
   const completeIfNeeded = useCallback((nextBoard) => {
