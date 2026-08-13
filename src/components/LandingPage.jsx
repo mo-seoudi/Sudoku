@@ -25,7 +25,6 @@ export default function LandingPage({
           <p className="landing-intro">Think. Solve. Repeat.</p>
 
           <div className="landing-settings">
-            <span className="landing-label">Difficulty</span>
             <div className="landing-difficulties" aria-label="Choose difficulty">
               {DIFFICULTIES.map((level) => (
                 <button
