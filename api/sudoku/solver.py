@@ -98,3 +98,47 @@ def _count_recursive(board, limit):
 
 def has_unique_solution(board):
     return count_solutions(board, limit=2) == 1
+
+
+def search_complexity(board):
+    """
+    Secondary diagnostic only. This is NOT used as the main human difficulty
+    rating. It records how much recursive search a mathematical solver needs.
+    """
+    working = deepcopy(board)
+    stats = {
+        "nodes": 0,
+        "branches": 0,
+        "backtracks": 0,
+        "max_depth": 0,
+    }
+
+    solved = _search_with_stats(working, stats, 0)
+    stats["solved"] = solved
+    return stats
+
+
+def _search_with_stats(board, stats, depth):
+    stats["nodes"] += 1
+    stats["max_depth"] = max(stats["max_depth"], depth)
+
+    cell = find_best_empty_cell(board)
+    if cell is None:
+        return True
+
+    row, col, candidates = cell
+    if not candidates:
+        stats["backtracks"] += 1
+        return False
+
+    if len(candidates) > 1:
+        stats["branches"] += 1
+
+    for number in candidates:
+        board[row][col] = number
+        if _search_with_stats(board, stats, depth + 1):
+            return True
+        board[row][col] = EMPTY
+
+    stats["backtracks"] += 1
+    return False
