@@ -3,6 +3,7 @@ import CompletionModal from "./components/CompletionModal";
 import GameControls from "./components/GameControls";
 import GameDecisionModal from "./components/GameDecisionModal";
 import GameHeader from "./components/GameHeader";
+import LandingPage from "./components/LandingPage";
 import NumberPad from "./components/NumberPad";
 import SudokuBoard from "./components/SudokuBoard";
 import {
@@ -26,7 +27,7 @@ export default function App() {
   const [mistakes, setMistakes] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [gameStatus, setGameStatus] = useState("loading");
+  const [gameStatus, setGameStatus] = useState("landing");
   const [errorMessage, setErrorMessage] = useState("");
   const [completionPulseCells, setCompletionPulseCells] = useState([]);
   const [decisionModal, setDecisionModal] = useState(null);
@@ -92,10 +93,6 @@ export default function App() {
       setCompletionPulseCells([]);
     }
   }, [decisionModal, loadPuzzle, pendingDifficulty]);
-
-  useEffect(() => {
-    loadPuzzle("medium");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (gameStatus !== "playing") return undefined;
@@ -340,6 +337,16 @@ export default function App() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enterNumber, eraseSelected, gameStatus, undo]);
+
+  if (gameStatus === "landing") {
+    return (
+      <LandingPage
+        difficulty={difficulty}
+        onDifficultyChange={setDifficulty}
+        onStart={loadPuzzle}
+      />
+    );
+  }
 
   if (gameStatus === "loading" && board.length === 0) {
     return (
