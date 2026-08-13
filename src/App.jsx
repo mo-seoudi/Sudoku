@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CompletionModal from "./components/CompletionModal";
 import GameControls from "./components/GameControls";
+import GameDecisionModal from "./components/GameDecisionModal";
 import GameHeader from "./components/GameHeader";
 import NumberPad from "./components/NumberPad";
 import SudokuBoard from "./components/SudokuBoard";
@@ -28,6 +29,8 @@ export default function App() {
   const [gameStatus, setGameStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [completionPulseCells, setCompletionPulseCells] = useState([]);
+  const [decisionModal, setDecisionModal] = useState(null);
+  const [pendingDifficulty, setPendingDifficulty] = useState("medium");
 
   const startGameIfNeeded = useCallback(() => {
     setGameStatus((status) => (status === "ready" ? "playing" : status));
@@ -55,6 +58,40 @@ export default function App() {
       setGameStatus("error");
     }
   }, [difficulty]);
+
+  const requestNewGame = useCallback((nextDifficulty = difficulty) => {
+    if (gameStatus === "loading") return;
+
+    if (gameStatus === "playing" || gameStatus === "paused") {
+      setPendingDifficulty(nextDifficulty);
+      setDecisionModal("new");
+      return;
+    }
+
+    loadPuzzle(nextDifficulty);
+  }, [difficulty, gameStatus, loadPuzzle]);
+
+  const requestEndGame = useCallback(() => {
+    if (gameStatus !== "playing" && gameStatus !== "paused") return;
+    setDecisionModal("end");
+  }, [gameStatus]);
+
+  const confirmDecision = useCallback(() => {
+    if (decisionModal === "new") {
+      const nextDifficulty = pendingDifficulty;
+      setDecisionModal(null);
+      loadPuzzle(nextDifficulty);
+      return;
+    }
+
+    if (decisionModal === "end") {
+      setDecisionModal(null);
+      setGameStatus("ended");
+      setSelectedCell(null);
+      setNotesMode(false);
+      setCompletionPulseCells([]);
+    }
+  }, [decisionModal, loadPuzzle, pendingDifficulty]);
 
   useEffect(() => {
     loadPuzzle("medium");
@@ -103,7 +140,11 @@ export default function App() {
   }, [solution]);
 
   const enterNumber = useCallback((number) => {
-    if (!selectedCell || !solution || gameStatus === "paused") return;
+    if (
+      !selectedCell ||
+      !solution ||
+      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+    ) return;
 
     const { row, col } = selectedCell;
     const current = board[row][col];
@@ -154,7 +195,10 @@ export default function App() {
   ]);
 
   const eraseSelected = useCallback(() => {
-    if (!selectedCell || gameStatus === "paused") return;
+    if (
+      !selectedCell ||
+      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+    ) return;
 
     const { row, col } = selectedCell;
     const current = board[row][col];
@@ -176,7 +220,10 @@ export default function App() {
   }, [board, gameStatus, saveHistory, selectedCell, startGameIfNeeded]);
 
   const undo = useCallback(() => {
-    if (!history.length || gameStatus === "paused") return;
+    if (
+      !history.length ||
+      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+    ) return;
 
     const previous = history[history.length - 1];
     setBoard(cloneBoard(previous.board));
@@ -186,7 +233,10 @@ export default function App() {
   }, [gameStatus, history]);
 
   const giveHint = useCallback(() => {
-    if (!solution || gameStatus === "paused") return;
+    if (
+      !solution ||
+      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+    ) return;
 
     const unsolved = [];
     for (let row = 0; row < 9; row += 1) {
@@ -246,7 +296,7 @@ export default function App() {
   }, []);
 
   const selectCell = useCallback((row, col) => {
-    if (gameStatus === "paused") return;
+    if (["paused", "completed", "ended", "loading"].includes(gameStatus)) return;
     setSelectedCell({ row, col });
   }, [gameStatus]);
 
@@ -273,7 +323,7 @@ export default function App() {
 
   useEffect(() => {
     function handleKeyDown(event) {
-      if (gameStatus === "paused" || gameStatus === "loading") return;
+      if (["paused", "loading", "completed", "ended"].includes(gameStatus)) return;
 
       if (/^[1-9]$/.test(event.key)) {
         enterNumber(Number(event.key));
@@ -314,7 +364,7 @@ export default function App() {
               key={level}
               type="button"
               className={difficulty === level ? "active" : ""}
-              onClick={() => loadPuzzle(level)}
+              onClick={() => requestNewGame(level)}
               disabled={gameStatus === "loading"}
             >
               {level}
@@ -353,13 +403,13 @@ export default function App() {
           <NumberPad
             onNumber={enterNumber}
             completedNumbers={completedNumbers}
-            disabled={gameStatus === "paused" || gameStatus === "completed"}
+            disabled={["paused", "completed", "ended"].includes(gameStatus)}
           />
 
           <GameControls
             notesMode={notesMode}
             canUndo={history.length > 0}
-            disabled={gameStatus === "paused" || gameStatus === "completed"}
+            disabled={["paused", "completed", "ended"].includes(gameStatus)}
             onUndo={undo}
             onToggleNotes={() => setNotesMode((mode) => !mode)}
             onErase={eraseSelected}
@@ -367,10 +417,31 @@ export default function App() {
           />
 
           <div className="bottom-actions">
-            <span>The timer starts with your first move.</span>
-            <button type="button" onClick={() => loadPuzzle(difficulty)}>
-              New {difficulty} puzzle
-            </button>
+            <span>
+              {gameStatus === "ended"
+                ? "This game has ended."
+                : "The timer starts with your first move."}
+            </span>
+
+            <div className="game-lifecycle-actions">
+              {(gameStatus === "playing" || gameStatus === "paused") && (
+                <button
+                  type="button"
+                  className="end-game-button"
+                  onClick={requestEndGame}
+                >
+                  End game
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="new-game-button"
+                onClick={() => requestNewGame(difficulty)}
+              >
+                New game
+              </button>
+            </div>
           </div>
         </section>
       )}
@@ -382,6 +453,17 @@ export default function App() {
           mistakes={mistakes}
           hintsUsed={hintsUsed}
           onNewGame={() => loadPuzzle(difficulty)}
+        />
+      )}
+
+      {decisionModal && (
+        <GameDecisionModal
+          mode={decisionModal}
+          currentDifficulty={difficulty}
+          nextDifficulty={pendingDifficulty}
+          onSelectDifficulty={setPendingDifficulty}
+          onCancel={() => setDecisionModal(null)}
+          onConfirm={confirmDecision}
         />
       )}
     </main>
