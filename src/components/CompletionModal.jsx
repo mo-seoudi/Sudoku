@@ -6,13 +6,14 @@ export default function CompletionModal({
   mistakes,
   hintsUsed,
   onNewGame,
+  onMainPage,
 }) {
   return (
     <div className="completion-backdrop" role="dialog" aria-modal="true">
       <div className="completion-card">
         <div className="completion-check">✓</div>
         <h2>Puzzle completed</h2>
-        <p>Nicely done.</p>
+        <p>Nice work.</p>
 
         <div className="completion-stats">
           <div>
@@ -33,9 +34,22 @@ export default function CompletionModal({
           </div>
         </div>
 
-        <button type="button" className="primary-button" onClick={onNewGame}>
-          New puzzle
-        </button>
+        <div className="completion-actions">
+          <button
+            type="button"
+            className="completion-secondary-button"
+            onClick={onMainPage}
+          >
+            Main page
+          </button>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={onNewGame}
+          >
+            New game
+          </button>
+        </div>
       </div>
     </div>
   );
