@@ -1,4 +1,4 @@
-const DIFFICULTIES = ["easy", "medium", "hard", "extreme"];
+const DIFFICULTIES = ["easy", "medium", "hard", "expert"];
 
 const SAMPLE_BOARD = [
   0, 0, 7, 0, 4, 0, 1, 0, 0,
