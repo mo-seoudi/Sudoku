@@ -110,15 +110,15 @@ export default function App() {
   }, [gameStatus]);
 
   const saveHistory = useCallback(() => {
+    // Undo restores only the board state. Game statistics such as mistakes
+    // and hints used are intentionally permanent once they happen.
     setHistory((items) => [
       ...items,
       {
         board: cloneBoard(board),
-        mistakes,
-        hintsUsed,
       },
     ]);
-  }, [board, mistakes, hintsUsed]);
+  }, [board]);
 
   const triggerCompletionPulse = useCallback((previousBoard, nextBoard) => {
     const cells = getNewlyCompletedCells(previousBoard, nextBoard, solution);
@@ -242,8 +242,9 @@ export default function App() {
 
     const previous = history[history.length - 1];
     setBoard(cloneBoard(previous.board));
-    setMistakes(previous.mistakes);
-    setHintsUsed(previous.hintsUsed);
+
+    // Do not roll back mistakes or hints used. Undo reverses the board action,
+    // not the player's recorded game statistics.
     setHistory((items) => items.slice(0, -1));
   }, [gameStatus, history]);
 
