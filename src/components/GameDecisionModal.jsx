@@ -1,4 +1,4 @@
-const DIFFICULTIES = ["easy", "medium", "hard", "expert"];
+const DIFFICULTIES = ["easy", "medium", "hard", "expert", "master"];
 
 export default function GameDecisionModal({
   mode,

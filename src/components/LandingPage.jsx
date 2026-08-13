@@ -1,4 +1,4 @@
-const DIFFICULTIES = ["easy", "medium", "hard", "expert"];
+const DIFFICULTIES = ["easy", "medium", "hard", "expert", "master"];
 
 const SAMPLE_BOARD = [
   0, 0, 7, 0, 4, 0, 1, 0, 0,
@@ -21,11 +21,8 @@ export default function LandingPage({
     <main className="landing-shell">
       <section className="landing-card">
         <div className="landing-copy">
-          
           <h1 className="landing-title">Sudoku</h1>
-          <p className="landing-intro">
-            Think. Solve. Repeat.
-          </p>
+          <p className="landing-intro">Think. Solve. Repeat.</p>
 
           <div className="landing-settings">
             <span className="landing-label">Difficulty</span>
@@ -52,7 +49,6 @@ export default function LandingPage({
             <span aria-hidden="true">→</span>
           </button>
 
-          
         </div>
 
         <div className="landing-visual" aria-hidden="true">
