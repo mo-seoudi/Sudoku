@@ -1485,3 +1485,85 @@ h1 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Whole-puzzle completion -------------------------------------------------
+   The final win uses one coherent layer above the board rather than changing
+   any cell borders. Grid lines therefore stay perfectly fixed while the
+   entire solved board gets a short, calm completion glow. */
+.sudoku-board.is-win-pulse {
+  pointer-events: none;
+}
+
+.win-board-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  border-radius: 12px;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.82) 0%, rgba(222, 235, 255, 0.44) 38%, rgba(178, 207, 255, 0.12) 72%, transparent 100%),
+    linear-gradient(135deg, rgba(104, 157, 255, 0.04), rgba(115, 95, 235, 0.10));
+  box-shadow:
+    inset 0 0 0 2px rgba(73, 130, 238, 0.20),
+    inset 0 0 34px rgba(70, 128, 235, 0.16),
+    0 10px 28px rgba(37, 83, 168, 0.10);
+  animation: wholeBoardComplete 950ms cubic-bezier(0.22, 0.72, 0.24, 1) both;
+}
+
+.win-board-overlay::after {
+  content: "";
+  position: absolute;
+  top: -18%;
+  bottom: -18%;
+  width: 28%;
+  left: -34%;
+  transform: skewX(-13deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+  filter: blur(2px);
+  animation: wholeBoardSweep 950ms ease-out both;
+}
+
+.sudoku-board.is-win-pulse .cell-value {
+  animation: wholeBoardValueLift 950ms cubic-bezier(0.22, 0.72, 0.24, 1) both;
+}
+
+@keyframes wholeBoardComplete {
+  0% {
+    opacity: 0;
+    transform: scale(0.992);
+  }
+  20% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  52% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes wholeBoardSweep {
+  0% { left: -34%; opacity: 0; }
+  15% { opacity: 0.72; }
+  72% { opacity: 0.52; }
+  100% { left: 112%; opacity: 0; }
+}
+
+@keyframes wholeBoardValueLift {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-1px) scale(1.025); }
+  62% { transform: translateY(-1px) scale(1.018); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win-board-overlay,
+  .win-board-overlay::after,
+  .sudoku-board.is-win-pulse .cell-value {
+    animation-duration: 1ms !important;
+  }
+}
