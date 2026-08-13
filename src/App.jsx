@@ -15,8 +15,6 @@ import {
 } from "./lib/gameLogic";
 import { fetchPuzzle } from "./lib/sudokuApi";
 
-const DIFFICULTIES = ["easy", "medium", "hard", "extreme"];
-
 export default function App() {
   const [difficulty, setDifficulty] = useState("medium");
   const [board, setBoard] = useState([]);
@@ -60,20 +58,14 @@ export default function App() {
     }
   }, [difficulty]);
 
-  const requestNewGame = useCallback((nextDifficulty = difficulty) => {
+  const requestNewGame = useCallback(() => {
     if (gameStatus === "loading") return;
-
-    if (gameStatus === "playing" || gameStatus === "paused") {
-      setPendingDifficulty(nextDifficulty);
-      setDecisionModal("new");
-      return;
-    }
-
-    loadPuzzle(nextDifficulty);
-  }, [difficulty, gameStatus, loadPuzzle]);
+    setPendingDifficulty(difficulty);
+    setDecisionModal("new");
+  }, [difficulty, gameStatus]);
 
   const requestEndGame = useCallback(() => {
-    if (gameStatus !== "playing" && gameStatus !== "paused") return;
+    if (!["ready", "playing", "paused"].includes(gameStatus)) return;
     setDecisionModal("end");
   }, [gameStatus]);
 
@@ -87,10 +79,16 @@ export default function App() {
 
     if (decisionModal === "end") {
       setDecisionModal(null);
-      setGameStatus("ended");
+      setBoard([]);
+      setSolution(null);
       setSelectedCell(null);
       setNotesMode(false);
+      setHistory([]);
+      setMistakes(0);
+      setHintsUsed(0);
+      setElapsedSeconds(0);
       setCompletionPulseCells([]);
+      setGameStatus("landing");
     }
   }, [decisionModal, loadPuzzle, pendingDifficulty]);
 
@@ -365,18 +363,26 @@ export default function App() {
           <h1>Sudoku</h1>
         </div>
 
-        <div className="difficulty-picker" aria-label="Difficulty">
-          {DIFFICULTIES.map((level) => (
+        <div className="top-game-actions">
+          {(gameStatus === "playing" || gameStatus === "paused" || gameStatus === "ready") && (
             <button
-              key={level}
               type="button"
-              className={difficulty === level ? "active" : ""}
-              onClick={() => requestNewGame(level)}
+              className="top-end-game-button"
+              onClick={requestEndGame}
               disabled={gameStatus === "loading"}
             >
-              {level}
+              End game
             </button>
-          ))}
+          )}
+
+          <button
+            type="button"
+            className="top-new-game-button"
+            onClick={requestNewGame}
+            disabled={gameStatus === "loading"}
+          >
+            New game
+          </button>
         </div>
       </div>
 
@@ -429,26 +435,6 @@ export default function App() {
                 ? "This game has ended."
                 : "The timer starts with your first move."}
             </span>
-
-            <div className="game-lifecycle-actions">
-              {(gameStatus === "playing" || gameStatus === "paused") && (
-                <button
-                  type="button"
-                  className="end-game-button"
-                  onClick={requestEndGame}
-                >
-                  End game
-                </button>
-              )}
-
-              <button
-                type="button"
-                className="new-game-button"
-                onClick={() => requestNewGame(difficulty)}
-              >
-                New game
-              </button>
-            </div>
           </div>
         </section>
       )}
@@ -459,7 +445,7 @@ export default function App() {
           elapsedSeconds={elapsedSeconds}
           mistakes={mistakes}
           hintsUsed={hintsUsed}
-          onNewGame={() => loadPuzzle(difficulty)}
+          onNewGame={requestNewGame}
         />
       )}
 
