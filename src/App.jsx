@@ -28,6 +28,7 @@ export default function App() {
   const [gameStatus, setGameStatus] = useState("landing");
   const [errorMessage, setErrorMessage] = useState("");
   const [completionPulseCells, setCompletionPulseCells] = useState([]);
+  const [winPulse, setWinPulse] = useState(false);
   const [decisionModal, setDecisionModal] = useState(null);
   const [pendingDifficulty, setPendingDifficulty] = useState("medium");
 
@@ -45,6 +46,7 @@ export default function App() {
     setHintsUsed(0);
     setElapsedSeconds(0);
     setCompletionPulseCells([]);
+    setWinPulse(false);
 
     try {
       const data = await fetchPuzzle(nextDifficulty);
@@ -80,6 +82,7 @@ export default function App() {
     setHintsUsed(0);
     setElapsedSeconds(0);
     setCompletionPulseCells([]);
+    setWinPulse(false);
     setGameStatus("landing");
   }, []);
 
@@ -131,8 +134,19 @@ export default function App() {
 
   const completeIfNeeded = useCallback((nextBoard) => {
     if (boardIsComplete(nextBoard, solution)) {
-      setGameStatus("completed");
+      // Freeze play immediately, celebrate the whole solved board, then show
+      // the results card after a short beat. This keeps the win feeling clear
+      // without making the player wait.
+      setGameStatus("completing");
       setSelectedCell(null);
+      setCompletionPulseCells([]);
+      setWinPulse(true);
+
+      window.setTimeout(() => {
+        setWinPulse(false);
+        setGameStatus("completed");
+      }, 950);
+
       return true;
     }
     return false;
@@ -142,7 +156,7 @@ export default function App() {
     if (
       !selectedCell ||
       !solution ||
-      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+      ["paused", "completing", "completed", "ended", "loading"].includes(gameStatus)
     ) return;
 
     const { row, col } = selectedCell;
@@ -173,9 +187,11 @@ export default function App() {
     if (number === solution[row][col]) {
       target.error = false;
       removePeerNotes(nextBoard, row, col, number);
-      triggerCompletionPulse(board, nextBoard);
       setBoard(nextBoard);
-      completeIfNeeded(nextBoard);
+      const completedPuzzle = completeIfNeeded(nextBoard);
+      if (!completedPuzzle) {
+        triggerCompletionPulse(board, nextBoard);
+      }
     } else {
       target.error = true;
       setMistakes((count) => count + 1);
@@ -196,7 +212,7 @@ export default function App() {
   const eraseSelected = useCallback(() => {
     if (
       !selectedCell ||
-      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+      ["paused", "completing", "completed", "ended", "loading"].includes(gameStatus)
     ) return;
 
     const { row, col } = selectedCell;
@@ -221,7 +237,7 @@ export default function App() {
   const undo = useCallback(() => {
     if (
       !history.length ||
-      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+      ["paused", "completing", "completed", "ended", "loading"].includes(gameStatus)
     ) return;
 
     const previous = history[history.length - 1];
@@ -234,7 +250,7 @@ export default function App() {
   const giveHint = useCallback(() => {
     if (
       !solution ||
-      ["paused", "completed", "ended", "loading"].includes(gameStatus)
+      ["paused", "completing", "completed", "ended", "loading"].includes(gameStatus)
     ) return;
 
     const unsolved = [];
@@ -270,11 +286,13 @@ export default function App() {
     };
 
     removePeerNotes(nextBoard, preferred.row, preferred.col, value);
-    triggerCompletionPulse(board, nextBoard);
     setBoard(nextBoard);
     setHintsUsed((count) => count + 1);
     setSelectedCell(preferred);
-    completeIfNeeded(nextBoard);
+    const completedPuzzle = completeIfNeeded(nextBoard);
+    if (!completedPuzzle) {
+      triggerCompletionPulse(board, nextBoard);
+    }
   }, [
     board,
     completeIfNeeded,
@@ -295,7 +313,7 @@ export default function App() {
   }, []);
 
   const selectCell = useCallback((row, col) => {
-    if (["paused", "completed", "ended", "loading"].includes(gameStatus)) return;
+    if (["paused", "completing", "completed", "ended", "loading"].includes(gameStatus)) return;
     setSelectedCell({ row, col });
   }, [gameStatus]);
 
@@ -322,7 +340,7 @@ export default function App() {
 
   useEffect(() => {
     function handleKeyDown(event) {
-      if (["paused", "loading", "completed", "ended"].includes(gameStatus)) return;
+      if (["paused", "loading", "completing", "completed", "ended"].includes(gameStatus)) return;
 
       if (/^[1-9]$/.test(event.key)) {
         enterNumber(Number(event.key));
@@ -383,7 +401,7 @@ export default function App() {
             type="button"
             className="top-new-game-button"
             onClick={requestNewGame}
-            disabled={gameStatus === "loading"}
+            disabled={["loading", "completing"].includes(gameStatus)}
           >
             New game
           </button>
@@ -415,18 +433,19 @@ export default function App() {
             onSelectCell={selectCell}
             paused={gameStatus === "paused"}
             completionPulseCells={completionPulseCells}
+            winPulse={winPulse}
           />
 
           <NumberPad
             onNumber={enterNumber}
             completedNumbers={completedNumbers}
-            disabled={["paused", "completed", "ended"].includes(gameStatus)}
+            disabled={["paused", "completing", "completed", "ended"].includes(gameStatus)}
           />
 
           <GameControls
             notesMode={notesMode}
             canUndo={history.length > 0}
-            disabled={["paused", "completed", "ended"].includes(gameStatus)}
+            disabled={["paused", "completing", "completed", "ended"].includes(gameStatus)}
             onUndo={undo}
             onToggleNotes={() => setNotesMode((mode) => !mode)}
             onErase={eraseSelected}
