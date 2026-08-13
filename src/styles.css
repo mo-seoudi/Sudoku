@@ -395,7 +395,7 @@ h1 {
   width: min(100%, 610px);
   margin: 12px auto 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
 
@@ -935,7 +935,7 @@ h1 {
 
 .decision-difficulties {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 7px;
 }
 
@@ -1097,7 +1097,7 @@ h1 {
 .landing-difficulties {
   width: min(100%, 410px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   padding: 5px;
   border: 1px solid #e2e7ef;
@@ -1330,6 +1330,7 @@ h1 {
   }
 
   .landing-difficulties {
+    grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     padding: 4px;
   }
@@ -1432,7 +1433,7 @@ h1 {
 
 .decision-difficulties {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 
@@ -1482,7 +1483,7 @@ h1 {
   }
 
   .decision-difficulties {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
