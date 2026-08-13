@@ -69,6 +69,20 @@ export default function App() {
     setDecisionModal("end");
   }, [gameStatus]);
 
+  const goToLanding = useCallback(() => {
+    setDecisionModal(null);
+    setBoard([]);
+    setSolution(null);
+    setSelectedCell(null);
+    setNotesMode(false);
+    setHistory([]);
+    setMistakes(0);
+    setHintsUsed(0);
+    setElapsedSeconds(0);
+    setCompletionPulseCells([]);
+    setGameStatus("landing");
+  }, []);
+
   const confirmDecision = useCallback(() => {
     if (decisionModal === "new") {
       const nextDifficulty = pendingDifficulty;
@@ -78,19 +92,9 @@ export default function App() {
     }
 
     if (decisionModal === "end") {
-      setDecisionModal(null);
-      setBoard([]);
-      setSolution(null);
-      setSelectedCell(null);
-      setNotesMode(false);
-      setHistory([]);
-      setMistakes(0);
-      setHintsUsed(0);
-      setElapsedSeconds(0);
-      setCompletionPulseCells([]);
-      setGameStatus("landing");
+      goToLanding();
     }
-  }, [decisionModal, loadPuzzle, pendingDifficulty]);
+  }, [decisionModal, goToLanding, loadPuzzle, pendingDifficulty]);
 
   useEffect(() => {
     if (gameStatus !== "playing") return undefined;
@@ -122,7 +126,7 @@ export default function App() {
       setCompletionPulseCells((current) =>
         current.some((cell) => cells.includes(cell)) ? [] : current
       );
-    }, 1400);
+    }, 1550);
   }, [solution]);
 
   const completeIfNeeded = useCallback((nextBoard) => {
@@ -446,6 +450,7 @@ export default function App() {
           mistakes={mistakes}
           hintsUsed={hintsUsed}
           onNewGame={requestNewGame}
+          onMainPage={goToLanding}
         />
       )}
 
