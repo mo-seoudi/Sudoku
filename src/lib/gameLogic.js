@@ -64,3 +64,42 @@ export function formatTime(totalSeconds) {
     "0"
   )}`;
 }
+
+
+export function getNewlyCompletedCells(previousBoard, nextBoard, solution) {
+  if (!solution) return [];
+
+  const isUnitComplete = (board, cells) =>
+    cells.every(({ row, col }) => board[row][col].value === solution[row][col]);
+
+  const completed = new Set();
+  const units = [];
+
+  for (let row = 0; row < 9; row += 1) {
+    units.push(Array.from({ length: 9 }, (_, col) => ({ row, col })));
+  }
+
+  for (let col = 0; col < 9; col += 1) {
+    units.push(Array.from({ length: 9 }, (_, row) => ({ row, col })));
+  }
+
+  for (let boxRow = 0; boxRow < 3; boxRow += 1) {
+    for (let boxCol = 0; boxCol < 3; boxCol += 1) {
+      const cells = [];
+      for (let row = boxRow * 3; row < boxRow * 3 + 3; row += 1) {
+        for (let col = boxCol * 3; col < boxCol * 3 + 3; col += 1) {
+          cells.push({ row, col });
+        }
+      }
+      units.push(cells);
+    }
+  }
+
+  units.forEach((cells) => {
+    if (!isUnitComplete(previousBoard, cells) && isUnitComplete(nextBoard, cells)) {
+      cells.forEach(({ row, col }) => completed.add(`${row}-${col}`));
+    }
+  });
+
+  return [...completed];
+}
