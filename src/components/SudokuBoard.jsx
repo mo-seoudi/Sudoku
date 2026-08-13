@@ -7,6 +7,7 @@ export default function SudokuBoard({
   onSelectCell,
   paused,
   completionPulseCells = [],
+  winPulse = false,
 }) {
   const selected = selectedCell
     ? board[selectedCell.row][selectedCell.col]
@@ -17,7 +18,7 @@ export default function SudokuBoard({
 
   return (
     <div className="board-shell">
-      <div className={`sudoku-board ${paused ? "is-paused" : ""}`}>
+      <div className={`sudoku-board ${paused ? "is-paused" : ""} ${winPulse ? "is-win-pulse" : ""}`}>
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isSelected =
@@ -54,6 +55,8 @@ export default function SudokuBoard({
           })
         )}
       </div>
+
+      {winPulse && <div className="win-board-overlay" aria-hidden="true" />}
 
       {paused && (
         <div className="pause-overlay">
