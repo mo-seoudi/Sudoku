@@ -3,13 +3,13 @@ from copy import deepcopy
 
 from .puzzle_bank import PUZZLE_BANK
 
-VALID_DIFFICULTIES = ("easy", "medium", "hard", "expert")
+VALID_DIFFICULTIES = ("easy", "medium", "hard", "expert", "master")
 
 
 def _normalize_difficulty(difficulty):
     requested = str(difficulty or "medium").lower().strip()
     if requested == "extreme":
-        requested = "expert"
+        requested = "master"
     if requested not in VALID_DIFFICULTIES:
         requested = "medium"
     return requested
@@ -86,6 +86,8 @@ def generate_puzzle(difficulty="medium"):
     pre-certified seed is selected and randomized using structure-preserving
     Sudoku transformations. This makes Expert as fast to open as Easy while
     retaining human-logic-based difficulty instead of reverting to clue count.
+
+    Player-facing scale: Easy / Medium / Hard / Expert / Master.
     """
     requested = _normalize_difficulty(difficulty)
     seed = random.choice(PUZZLE_BANK[requested])

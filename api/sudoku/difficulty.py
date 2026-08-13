@@ -460,29 +460,44 @@ def solve_logically(board, allowed_techniques=None, max_iterations=2000):
     }
 
 
-def _classify_from_tier_and_score(minimum_tier, score):
-    """
-    Combine the minimum required technique tier with cumulative logical effort.
+def _classify_from_tier_and_score(minimum_tier, score, clues):
+    """Map the human-logic result onto the five player-facing levels.
 
-    Technique tier remains the dominant signal. The score prevents a long,
-    demanding puzzle made of many modest deductions from being underrated.
-    These thresholds are intentionally centralized so they can be calibrated
-    later from real player completion data.
+    The app was deliberately recalibrated after play-testing against mainstream
+    Sudoku apps. The former four levels now move up one slot, while the new
+    Easy level is reserved for fuller, well-distributed boards that collapse
+    comfortably through Singles.
+
+    Easy    -> new relaxed Singles-only boards (typically 39-40 givens)
+    Medium  -> former Easy
+    Hard    -> former Medium
+    Expert  -> former Hard
+    Master  -> former Expert
+
+    No level uses guessing/backtracking for its human difficulty rating.
     """
     if minimum_tier == "easy":
-        return "easy" if score <= 24 else "medium"
+        # The new Easy is intentionally generous with starting information.
+        # Sparse Singles-only boards are now Medium because they require more
+        # scanning even though the underlying technique is still simple.
+        if clues >= 36 and score <= 24:
+            return "easy"
+        return "medium"
 
     if minimum_tier == "medium":
-        if score < 40:
-            return "medium"
-        if score < 75:
+        # Calibrated with transformed certified seeds. Former Medium puzzles
+        # can reach about 40 points depending on deduction order, while the
+        # former Hard bank begins around 44. Keep a small clean separation.
+        if score < 44:
             return "hard"
-        return "expert"
+        if score < 80:
+            return "expert"
+        return "master"
 
     if minimum_tier == "hard":
-        return "hard" if score < 50 else "expert"
+        return "expert" if score < 50 else "master"
 
-    return "expert"
+    return "master"
 
 
 def rate_difficulty(board):
@@ -491,7 +506,7 @@ def rate_difficulty(board):
 
     1. Find the minimum technique tier able to solve the puzzle.
     2. Measure cumulative logical effort within that tier.
-    3. Combine both signals into Easy / Medium / Hard / Expert.
+    3. Combine both signals into Easy / Medium / Hard / Expert / Master.
 
     No guessing/backtracking is used for the rating. If the Expert technique
     set cannot finish the board, logical_solved=False and generation rejects it.
@@ -517,7 +532,8 @@ def rate_difficulty(board):
             "technique_counts": expert_result.get("technique_counts", {}),
         }
 
-    classification = _classify_from_tier_and_score(minimum_tier, result["score"])
+    clues = sum(1 for row in board for value in row if value)
+    classification = _classify_from_tier_and_score(minimum_tier, result["score"], clues)
 
     return {
         "difficulty": classification,
