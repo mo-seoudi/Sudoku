@@ -1301,3 +1301,148 @@ h1 {
     font-size: 0.72rem;
   }
 }
+
+/* Simplified in-game lifecycle ------------------------------------------ */
+.top-game-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-game-actions button {
+  min-height: 36px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.top-game-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.top-game-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.top-end-game-button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #8b94a7;
+}
+
+.top-end-game-button:hover:not(:disabled) {
+  color: #d05f69;
+  background: #fff4f5;
+}
+
+.top-new-game-button {
+  border: 1px solid #dbe5f7;
+  background: #ffffff;
+  color: #2f6fed;
+  box-shadow: 0 4px 12px rgba(39, 79, 145, 0.06);
+}
+
+.top-new-game-button:hover:not(:disabled) {
+  background: #f5f8ff;
+  border-color: #cbd9f3;
+}
+
+/* The difficulty is informational during play; the picker only exists
+   on the landing/new-game flow. */
+.app-topbar .difficulty-picker {
+  display: none;
+}
+
+/* Compact lifecycle dialog */
+.decision-card {
+  width: min(92vw, 390px);
+  padding: 24px;
+  border-radius: 18px;
+}
+
+.decision-card h2 {
+  margin: 0 0 18px;
+  text-align: left;
+  font-size: 1.05rem;
+}
+
+.decision-icon,
+.decision-card > p:not(.decision-short-copy),
+.decision-current-game {
+  display: none;
+}
+
+.decision-difficulty-block {
+  margin: 0;
+}
+
+.decision-label {
+  display: block;
+  margin-bottom: 9px;
+  color: #8a94a6;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.decision-difficulties {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.decision-difficulties button {
+  min-width: 0;
+  padding: 9px 5px;
+  border-radius: 9px;
+}
+
+.decision-short-copy {
+  margin: -6px 0 18px;
+  color: #8b94a7;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.decision-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.decision-actions button {
+  min-height: 40px;
+  border-radius: 10px;
+}
+
+@media (max-width: 560px) {
+  .app-topbar {
+    align-items: center;
+  }
+
+  .top-game-actions {
+    gap: 4px;
+  }
+
+  .top-game-actions button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+
+  .decision-card {
+    width: calc(100vw - 24px);
+    padding: 20px;
+  }
+
+  .decision-difficulties {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
