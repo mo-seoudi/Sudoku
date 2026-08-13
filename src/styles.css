@@ -1334,15 +1334,17 @@ h1 {
   }
 
   .landing-difficulties {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
     padding: 4px;
   }
 
   .landing-difficulties button {
+    min-width: 0;
     min-height: 39px;
-    padding-inline: 3px;
-    font-size: 0.72rem;
+    padding-inline: 1px;
+    font-size: 0.66rem;
+    letter-spacing: -0.015em;
   }
 }
 
@@ -1482,12 +1484,50 @@ h1 {
   }
 
   .decision-card {
-    width: calc(100vw - 24px);
-    padding: 20px;
+    width: calc(100vw - 20px);
+    padding: 20px 16px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 20px;
+  }
+
+  .decision-card h2 {
+    margin-bottom: 16px;
   }
 
   .decision-difficulties {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
+    padding: 4px;
+    border: 1px solid #e2e7ef;
+    border-radius: 13px;
+    background: #f7f9fc;
+  }
+
+  .decision-difficulties button {
+    min-width: 0;
+    min-height: 38px;
+    padding: 0 1px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    font-size: 0.66rem;
+    letter-spacing: -0.015em;
+  }
+
+  .decision-difficulties button.active {
+    background: #ffffff;
+    box-shadow: 0 3px 10px rgba(29, 51, 86, 0.08);
+  }
+
+  .decision-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid #edf0f5;
+  }
+
+  .decision-actions button {
+    min-height: 44px;
   }
 }
 
