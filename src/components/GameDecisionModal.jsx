@@ -2,7 +2,6 @@ const DIFFICULTIES = ["easy", "medium", "hard", "extreme"];
 
 export default function GameDecisionModal({
   mode,
-  currentDifficulty,
   nextDifficulty,
   onSelectDifficulty,
   onCancel,
@@ -12,21 +11,12 @@ export default function GameDecisionModal({
 
   return (
     <div className="decision-backdrop" role="dialog" aria-modal="true">
-      <div className="decision-card">
-        <div className={`decision-icon ${ending ? "danger" : ""}`}>
-          {ending ? "×" : "+"}
-        </div>
-
-        <h2>{ending ? "End this game?" : "Start a new game?"}</h2>
-        <p>
-          {ending
-            ? "Your current puzzle will be closed and its progress will be lost."
-            : "Starting a new puzzle will end your current game and discard its progress."}
-        </p>
+      <div className={`decision-card ${ending ? "end-mode" : "new-mode"}`}>
+        <h2>{ending ? "End game?" : "New game"}</h2>
 
         {!ending && (
           <div className="decision-difficulty-block">
-            <span className="decision-label">New difficulty</span>
+            <span className="decision-label">Choose difficulty</span>
             <div className="decision-difficulties">
               {DIFFICULTIES.map((level) => (
                 <button
@@ -42,22 +32,18 @@ export default function GameDecisionModal({
           </div>
         )}
 
-        {ending && (
-          <div className="decision-current-game">
-            Current game: <strong>{currentDifficulty}</strong>
-          </div>
-        )}
+        {ending && <p className="decision-short-copy">Current progress will be discarded.</p>}
 
         <div className="decision-actions">
           <button type="button" className="decision-cancel" onClick={onCancel}>
-            Keep playing
+            Cancel
           </button>
           <button
             type="button"
             className={`decision-confirm ${ending ? "danger" : ""}`}
             onClick={onConfirm}
           >
-            {ending ? "End game" : "End & start new"}
+            {ending ? "End game" : "Start"}
           </button>
         </div>
       </div>
