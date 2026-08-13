@@ -8,6 +8,7 @@ import {
   boardIsComplete,
   cloneBoard,
   createGameBoard,
+  getNewlyCompletedCells,
   removePeerNotes,
 } from "./lib/gameLogic";
 import { fetchPuzzle } from "./lib/sudokuApi";
@@ -26,6 +27,7 @@ export default function App() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [gameStatus, setGameStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [completionPulseCells, setCompletionPulseCells] = useState([]);
 
   const startGameIfNeeded = useCallback(() => {
     setGameStatus((status) => (status === "ready" ? "playing" : status));
@@ -40,6 +42,7 @@ export default function App() {
     setMistakes(0);
     setHintsUsed(0);
     setElapsedSeconds(0);
+    setCompletionPulseCells([]);
 
     try {
       const data = await fetchPuzzle(nextDifficulty);
@@ -77,6 +80,18 @@ export default function App() {
       },
     ]);
   }, [board, mistakes, hintsUsed]);
+
+  const triggerCompletionPulse = useCallback((previousBoard, nextBoard) => {
+    const cells = getNewlyCompletedCells(previousBoard, nextBoard, solution);
+    if (!cells.length) return;
+
+    setCompletionPulseCells(cells);
+    window.setTimeout(() => {
+      setCompletionPulseCells((current) =>
+        current.some((cell) => cells.includes(cell)) ? [] : current
+      );
+    }, 900);
+  }, [solution]);
 
   const completeIfNeeded = useCallback((nextBoard) => {
     if (boardIsComplete(nextBoard, solution)) {
@@ -118,6 +133,7 @@ export default function App() {
     if (number === solution[row][col]) {
       target.error = false;
       removePeerNotes(nextBoard, row, col, number);
+      triggerCompletionPulse(board, nextBoard);
       setBoard(nextBoard);
       completeIfNeeded(nextBoard);
     } else {
@@ -134,6 +150,7 @@ export default function App() {
     selectedCell,
     solution,
     startGameIfNeeded,
+    triggerCompletionPulse,
   ]);
 
   const eraseSelected = useCallback(() => {
@@ -204,6 +221,7 @@ export default function App() {
     };
 
     removePeerNotes(nextBoard, preferred.row, preferred.col, value);
+    triggerCompletionPulse(board, nextBoard);
     setBoard(nextBoard);
     setHintsUsed((count) => count + 1);
     setSelectedCell(preferred);
@@ -216,6 +234,7 @@ export default function App() {
     selectedCell,
     solution,
     startGameIfNeeded,
+    triggerCompletionPulse,
   ]);
 
   const togglePause = useCallback(() => {
@@ -328,6 +347,7 @@ export default function App() {
             selectedCell={selectedCell}
             onSelectCell={selectCell}
             paused={gameStatus === "paused"}
+            completionPulseCells={completionPulseCells}
           />
 
           <NumberPad
