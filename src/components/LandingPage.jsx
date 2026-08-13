@@ -21,10 +21,10 @@ export default function LandingPage({
     <main className="landing-shell">
       <section className="landing-card">
         <div className="landing-copy">
-          <span className="landing-kicker">A quiet logic game</span>
+          
           <h1 className="landing-title">Sudoku</h1>
           <p className="landing-intro">
-            Settle in, choose your level, and solve at your own pace.
+            Think. Solve. Repeat.
           </p>
 
           <div className="landing-settings">
