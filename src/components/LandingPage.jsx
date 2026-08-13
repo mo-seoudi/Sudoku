@@ -52,9 +52,7 @@ export default function LandingPage({
             <span aria-hidden="true">→</span>
           </button>
 
-          <p className="landing-footnote">
-            Timer begins with your first move.
-          </p>
+          
         </div>
 
         <div className="landing-visual" aria-hidden="true">
