@@ -452,13 +452,11 @@ export default function App() {
             onHint={giveHint}
           />
 
-          <div className="bottom-actions">
-            <span>
-              {gameStatus === "ended"
-                ? "This game has ended."
-                : "The timer starts with your first move."}
-            </span>
-          </div>
+          {gameStatus === "ready" && (
+            <div className="bottom-actions">
+              <span>The timer starts with your first move.</span>
+            </div>
+          )}
         </section>
       )}
 
