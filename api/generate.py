@@ -20,8 +20,12 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
         except Exception as exc:
-            payload = json.dumps({"error": str(exc)}).encode("utf-8")
+            payload = json.dumps({
+                "error": str(exc),
+                "requestedDifficulty": difficulty,
+            }).encode("utf-8")
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(payload)
