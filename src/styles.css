@@ -1255,7 +1255,10 @@ h1 {
   color: var(--blue);
 }
 
-@media (max-width: 760px) {
+/* Tablet / portrait iPad: switch the landing page to the stacked layout.
+   A standard iPad portrait viewport is 768px wide, so 760px left it
+   accidentally using the desktop two-column layout. */
+@media (max-width: 900px) {
   .landing-shell {
     min-height: 100svh;
     padding: 18px 12px;
